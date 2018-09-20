@@ -2,7 +2,7 @@ import numpy
 
 def get_population(rows, columns):
     population = numpy.random.randint(256, size=(rows,columns))
-    print(population)
+    print(population,"\n\n\n")
 
     return population
 
