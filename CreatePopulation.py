@@ -1,14 +1,15 @@
 import numpy
 
 def get_population(rows, columns):
-    population = numpy.random.randint(255, size=(rows,columns))
+    population = numpy.random.randint(256, size=(rows,columns))
+    print(population)
 
     return population
 
 
 def tournament(population, columns):
     number_of_contestants = 3
-    contestants = numpy.random.randint(columns, size=number_of_contestants)
+    contestants = numpy.random.randint(columns + 1, size=number_of_contestants)
 
     return min(contestants)
 
