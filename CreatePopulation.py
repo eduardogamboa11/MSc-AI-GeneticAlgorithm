@@ -1,30 +1,33 @@
 import numpy
+import math
 
-def get_population(rows, columns):
-    population = numpy.random.randint(256, size=(rows,columns))
-    print(population)
+
+def get_population(rows, individuals):
+    bits = 8
+    population = numpy.random.randint(2**bits, size=(rows,individuals))
 
     return population
 
 
-def tournament(population, columns):
+def tournament(population, individuals):
     number_of_contestants = 3
-    contestants = numpy.random.randint(columns + 1, size=number_of_contestants)
-
-    return min(contestants)
+    
+    contestants = numpy.random.randint(individuals + 1, size=number_of_contestants)
+    winner = population[min(contestants)]
+    
+    return winner
 
 
 def main():
-    rows = 20 
-    columns = 20
+    rows = 8 
 
-    population = get_population(rows, columns)
+    population = get_population(rows, individuals)
 
-    father = tournament(population, columns)
-    mother = tournament(population, columns)
+    father = tournament(population, individuals)
+    mother = tournament(population, individuals)
 
-    print("Father", population[father])
-    print("Mother", population[mother])
+    print("Father", father)
+    print("Mother", mother)
 
 
 main()
