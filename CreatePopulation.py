@@ -2,9 +2,8 @@ import numpy
 import math
 import random
 
-def get_population(bits, genotype, individuals):
-    
-    population = numpy.random.randint(2**bits, size=(individuals, genotype))
+def get_population(allele, genotype, individuals):    
+    population = numpy.random.randint(2**allele, size=(individuals, genotype))
 
     return population
 
@@ -63,21 +62,21 @@ def many_to_one(individual):
     return binary_string
 
 
-def one_to_many(bits, genotype, individual):
+def one_to_many(allele, genotype, individual):
     numbers = numpy.empty([genotype], dtype=int)
 
     for i in range(genotype):
-        numbers[i] = int(individual[i*bits:(i+1)*bits], 2)
+        numbers[i] = int(individual[i*allele:(i+1)*allele], 2)
     
     return numbers
 
 
 def main():
-    bits = 8
+    allele = 8
     genotype = 8 
     individuals = 10
-    population = get_population(bits, genotype, individuals)
     new_population = []
+    population = get_population(allele, genotype, individuals)
 
     for i in range(int(individuals/2)):
         father = tournament(population, individuals)
@@ -88,12 +87,12 @@ def main():
 
         child1_bin, child2_bin = get_child(father_b, mother_b)
         
-        child_1 = one_to_many(bits, genotype, child1_bin)
+        child_1 = one_to_many(allele, genotype, child1_bin)
         print('dadx',father)
         print('son1',child_1)
         print('momx',mother)
-        child_2 = one_to_many(bits, genotype, child2_bin)
-        print('son2',child_2, '\n')
+        child_2 = one_to_many(allele, genotype, child2_bin)
+        print('son2',child_2)
         new_population.append([child_1, get_aptitude(child_1)])
         new_population.append([child_2, get_aptitude(child_2)])
 
