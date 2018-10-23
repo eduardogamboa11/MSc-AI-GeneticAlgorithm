@@ -1,3 +1,3 @@
 # MSc-AI-GeneticAlgorithm
 
-# Implementation of a Genetic Algorithm in Python.
+## Implementation of a Genetic Algorithm in Python.
