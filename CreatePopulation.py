@@ -4,8 +4,8 @@ import random
 from matplotlib import pyplot as plt
 
 
-def get_population(allele, genotype, individuals):    
-    population = numpy.random.randint(2**allele, size=(individuals, genotype))
+def get_population(allele, chromosome, individuals):    
+    population = numpy.random.randint(2**allele, size=(individuals, chromosome))
 
     return population
 
@@ -77,35 +77,48 @@ def many_to_one(individual):
     return binary_string
 
 
-def one_to_many(allele, genotype, individual):
-    numbers = numpy.empty([genotype], dtype=int)
+def one_to_many(allele, chromosome, individual):
+    numbers = numpy.empty([chromosome], dtype=int)
 
-    for i in range(genotype):
+    for i in range(chromosome):
         numbers[i] = int(individual[i*allele:(i+1)*allele], 2)
     
     return numbers
 
 
+def graph_comparison(individual):
+    #Use to compare graphs between target and individual
+    A, B, C, D, E, F, G, H = 25, 123, 13, 15, 0.08, 80, 16, 15
+
+    for i in range(len(individual)):
+        if individual[i] == 0:
+            individual[i] = 1
+
+    A1 = individual[0]
+    B1 = individual[1]
+    C1 = individual[2]
+    D1 = individual[3]
+    E1 = individual[4]/500
+    F1 = individual[5]
+    G1 = individual[6]
+    H1 = individual[7]
+
+    x = []
+    y = []
+
+    for t in range(500):
+        x.append((A * math.exp(-t/B)) * (C * math.sin(t/D)) + (E * math.exp(t/F)) * (G * math.cos(t/H)))
+        y.append((A1 * math.exp(-t/B1)) * (C1 * math.sin(t/D1)) + (E1 * math.exp(t/F1)) * (G1 * math.cos(t/H1)))
+
+    plt.plot(x,"blue",y,"red")
+    plt.show()
+
 allele = 8
-genotype = 8 
+chromosome = 8 
 individuals = 2000
-population = get_population(allele, genotype, individuals)
-'''
-#test best result 1908
-A, B, C, D, E, F, G, H = 25, 123, 13, 15, 0.08, 80, 16, 15
-a1,b1,c1,d1,e1,f1,g1,h1= 16, 129, 19, 15,   53/500, 84, 16, 15 
-x = []
-y = []
-for t in range(500):
-    x.append((A * math.exp(-t/B)) * (C * math.sin(t/D)) + (E * math.exp(t/F)) * (G * math.cos(t/H)))
-    y.append((a1 * math.exp(-t/b1)) * (c1 * math.sin(t/d1)) + (e1 * math.exp(t/f1)) * (g1 * math.cos(t/h1)))
+population = get_population(allele, chromosome, individuals)
 
-plt.plot(x, 'blue', y, 'red')
-plt.show()
-'''
-
-evolution = []
-for gen in range(100):
+for gen in range(1):
     new_population = []
     for i in range(int(individuals/2)):
         father = tournament(population, individuals)
@@ -115,35 +128,20 @@ for gen in range(100):
         mother_b = many_to_one(mother)
 
         child1_bin, child2_bin = get_child(father_b, mother_b, population, individuals)
-        child_1 = one_to_many(allele, genotype, child1_bin)
-        child_2 = one_to_many(allele, genotype, child2_bin)
+        child_1 = one_to_many(allele, chromosome, child1_bin)
+        child_2 = one_to_many(allele, chromosome, child2_bin)
 
         new_population.append([child_1, get_aptitude(child_1)])
         new_population.append([child_2, get_aptitude(child_2)])
 
     results = sorted(new_population, key=lambda x:(x[1]))
-    #for i in range(100):
-    #    evolution.append(results[99-i][1])
-    #plt.plot(evolution, 'blue')
-    #plt.show()
+
     print('gen:', gen)
-    print('1   ', results[0])
-    print('10  ', results[10])
-    print('20  ', results[20])
-    print('100 ', results[100])
-    print('200 ', results[200])
-    print('300 ', results[300])
-    print('400 ', results[400])
-    print('500 ', results[500])
-    print('600 ', results[600])
-    print('800 ', results[800])
-    print('1000', results[1000])
-    print('1100', results[1100])
-    print('1200', results[1200])
-    print('1500', results[1500])
-    print('1800', results[1800])
-    print('2000', results[1999])
+    print(results[0])
 
     for individual in range(individuals):
         population[individual]=results[individual][0]
+
+#COMPARISON
+graph_comparison(population[0])
 
