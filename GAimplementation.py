@@ -4,8 +4,8 @@ import random
 from matplotlib import pyplot as plt
 
 
-def get_population(allele, chromosome, individuals):    
-    population = numpy.random.randint(2**allele, size=(individuals, chromosome))
+def get_population(alleles, chromosomes, individuals):    
+    population = numpy.random.randint(2**alleles, size=(individuals, chromosomes))
 
     return population
 
@@ -19,9 +19,53 @@ def tournament(population, individuals):
     return winner
 
 
+def numbers_to_string(individual):
+    binary_string = ''
+
+    for chromosomes in individual:
+        binary_string += '{0:08b}'.format(chromosomes)
+
+    return binary_string
+    
+
+def get_child(father, mother, population, individuals):
+    cut_distance = random.randint(1,len(father)-1)
+
+    father_x = father[:cut_distance]
+    father_y = father[cut_distance:]
+    mother_x = mother[:cut_distance]
+    mother_y = mother[cut_distance:]
+
+    child1 = father_x + mother_y
+    child2 = mother_x + father_y
+
+    #Mutation
+    mutation_numbers = numpy.random.randint(len(father), size=math.ceil(len(father)*mutation_probability))
+    
+    if cut_distance in mutation_numbers:
+        mutation_bit = random.randint(1,len(father)-1)
+
+        if child1[mutation_bit-1] is '0':
+            child1 = child1[:mutation_bit - 1] + '1' + child1[mutation_bit:]
+        elif child1[mutation_bit-1] is '1':   
+            child1 = child1[:mutation_bit - 1] + '0' + child1[mutation_bit:]
+    
+    return child1, child2
+
+
+def string_to_numbers(alleles, chromosomes, individual):
+    numbers = numpy.empty([chromosomes], dtype=int)
+
+    for i in range(chromosomes):
+        numbers[i] = int(individual[i*alleles:(i+1)*alleles], 2)
+    
+    return numbers
+
+
 def get_aptitude(ind):
     A, B, C, D, E, F, G, H = 25, 123, 13, 15, 0.08, 80, 16, 15
 
+    #Avoid division by 0
     for i in range(len(ind)):
         if ind[i] == 0:
             ind[i] = 1
@@ -37,53 +81,13 @@ def get_aptitude(ind):
 
     aptitude = 0
 
+    #calculate difference from target with individual for every x(t) 
     for t in range(500):
         x = (A * math.exp(-t/B)) * (C * math.sin(t/D)) + (E * math.exp(t/F)) * (G * math.cos(t/H))
         y = (A1 * math.exp(-t/B1)) * (C1 * math.sin(t/D1)) + (E1 * math.exp(t/F1)) * (G1 * math.cos(t/H1))
         aptitude += abs(x - y)    
 
     return aptitude
-    
-
-def get_child(father, mother, population, individuals):
-    cut_distance = random.randint(1,len(father)-1)
-    mutation_numbers = numpy.random.randint(len(father), size=math.ceil(len(father)*0))
-
-    father_x = father[:cut_distance]
-    father_y = father[cut_distance:]
-    mother_x = mother[:cut_distance]
-    mother_y = mother[cut_distance:]
-
-    child1 = father_x + mother_y
-    child2 = mother_x + father_y
-    
-    if cut_distance in mutation_numbers:
-        mutation_bit = random.randint(1,len(father)-1)
-
-        if child1[mutation_bit-1] is '0':
-            child1 = child1[:mutation_bit - 1] + '1' + child1[mutation_bit:]
-        elif child1[mutation_bit-1] is '1':   
-            child1 = child1[:mutation_bit - 1] + '0' + child1[mutation_bit:]
-    
-    return child1, child2
-
-
-def many_to_one(individual):
-    binary_string = ''
-
-    for chromosome in individual:
-        binary_string += '{0:08b}'.format(chromosome)
-
-    return binary_string
-
-
-def one_to_many(allele, chromosome, individual):
-    numbers = numpy.empty([chromosome], dtype=int)
-
-    for i in range(chromosome):
-        numbers[i] = int(individual[i*allele:(i+1)*allele], 2)
-    
-    return numbers
 
 
 def graph_comparison(individual):
@@ -113,10 +117,12 @@ def graph_comparison(individual):
     plt.plot(x,"blue",y,"red")
     plt.show()
 
-allele = 8
-chromosome = 8 
+
+alleles = 8
+chromosomes = 8 
 individuals = 2000
-population = get_population(allele, chromosome, individuals)
+population = get_population(alleles, chromosomes, individuals)
+mutation_probability = 0.015
 
 for gen in range(1):
     new_population = []
@@ -124,12 +130,12 @@ for gen in range(1):
         father = tournament(population, individuals)
         mother = tournament(population, individuals)
         
-        father_b = many_to_one(father)
-        mother_b = many_to_one(mother)
+        father_b = numbers_to_string(father)
+        mother_b = numbers_to_string(mother)
 
         child1_bin, child2_bin = get_child(father_b, mother_b, population, individuals)
-        child_1 = one_to_many(allele, chromosome, child1_bin)
-        child_2 = one_to_many(allele, chromosome, child2_bin)
+        child_1 = string_to_numbers(alleles, chromosomes, child1_bin)
+        child_2 = string_to_numbers(alleles, chromosomes, child2_bin)
 
         new_population.append([child_1, get_aptitude(child_1)])
         new_population.append([child_2, get_aptitude(child_2)])
