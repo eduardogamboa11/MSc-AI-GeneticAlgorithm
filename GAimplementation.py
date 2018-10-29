@@ -62,29 +62,20 @@ def string_to_numbers(alleles, chromosomes, individual):
     return numbers
 
 
-def get_aptitude(ind):
+def get_aptitude(individual):
     A, B, C, D, E, F, G, H = 25, 123, 13, 15, 0.08, 80, 16, 15
 
     #Avoid division by 0
-    for i in range(len(ind)):
-        if ind[i] == 0:
-            ind[i] = 1
-
-    A1 = ind[0]
-    B1 = ind[1]
-    C1 = ind[2]
-    D1 = ind[3]
-    E1 = ind[4]/500
-    F1 = ind[5]
-    G1 = ind[6]
-    H1 = ind[7]
+    for i in range(len(individual)):
+        if individual[i] == 0:
+            individual[i] = 1
+    A1, B1, C1, D1, E1, F1, G1, H1 = individual
 
     aptitude = 0
-
     #calculate difference from target with individual for every x(t) 
     for t in range(500):
         x = (A * math.exp(-t/B)) * (C * math.sin(t/D)) + (E * math.exp(t/F)) * (G * math.cos(t/H))
-        y = (A1 * math.exp(-t/B1)) * (C1 * math.sin(t/D1)) + (E1 * math.exp(t/F1)) * (G1 * math.cos(t/H1))
+        y = (A1 * math.exp(-t/B1)) * (C1 * math.sin(t/D1)) + ((E1/500) * math.exp(t/F1)) * (G1 * math.cos(t/H1))
         aptitude += abs(x - y)    
 
     return aptitude
@@ -97,22 +88,10 @@ def graph_comparison(individual):
     for i in range(len(individual)):
         if individual[i] == 0:
             individual[i] = 1
+    A1, B1, C1, D1, E1, F1, G1, H1 = individual
 
-    A1 = individual[0]
-    B1 = individual[1]
-    C1 = individual[2]
-    D1 = individual[3]
-    E1 = individual[4]/500
-    F1 = individual[5]
-    G1 = individual[6]
-    H1 = individual[7]
-
-    x = []
-    y = []
-
-    for t in range(500):
-        x.append((A * math.exp(-t/B)) * (C * math.sin(t/D)) + (E * math.exp(t/F)) * (G * math.cos(t/H)))
-        y.append((A1 * math.exp(-t/B1)) * (C1 * math.sin(t/D1)) + (E1 * math.exp(t/F1)) * (G1 * math.cos(t/H1)))
+    x = [((A * math.exp(-t/B)) * (C * math.sin(t/D)) + (E * math.exp(t/F)) * (G * math.cos(t/H))) for t in range(500)]
+    y = [((A1 * math.exp(-t/B1)) * (C1 * math.sin(t/D1)) + ((E1/500) * math.exp(t/F1)) * (G1 * math.cos(t/H1))) for t in range(500)]
 
     plt.plot(x,"blue",y,"red")
     plt.show()
@@ -121,10 +100,13 @@ def graph_comparison(individual):
 alleles = 8
 chromosomes = 8 
 individuals = 2000
-population = get_population(alleles, chromosomes, individuals)
 mutation_probability = 0.015
+generations = 15
 
-for gen in range(1):
+
+population = get_population(alleles, chromosomes, individuals)
+
+for gen in range(generations):
     new_population = []
     for i in range(int(individuals/2)):
         father = tournament(population, individuals)
@@ -144,9 +126,10 @@ for gen in range(1):
 
     print('gen:', gen)
     print(results[0])
+    graph_comparison(results[0][0])
 
     for individual in range(individuals):
         population[individual]=results[individual][0]
 
 #COMPARISON
-graph_comparison(population[0])
+

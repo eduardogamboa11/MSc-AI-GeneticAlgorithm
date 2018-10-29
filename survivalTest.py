@@ -4,8 +4,14 @@ import random
 from matplotlib import pyplot as plt
 
 
+def get_population(alleles, chromosomes, individuals):    
+    population = numpy.random.randint(2**alleles, size=(individuals, chromosomes))
+
+    return population
+
+
 def tournament(population, individuals):
-    number_of_contestants = 50
+    number_of_contestants = 3
     
     contestants = numpy.random.randint(individuals, size=number_of_contestants)
     winner = population[min(contestants)]
@@ -13,7 +19,7 @@ def tournament(population, individuals):
     return winner
 
 
-def many_to_one(individual):
+def numbers_to_string(individual):
     binary_string = ''
 
     for chromosomes in individual:
@@ -47,11 +53,11 @@ def get_child(father, mother, population, individuals):
     return child1, child2
 
 
-def one_to_many(allele, chromosomes, individual):
+def string_to_numbers(alleles, chromosomes, individual):
     numbers = numpy.empty([chromosomes], dtype=int)
 
     for i in range(chromosomes):
-        numbers[i] = int(individual[i*allele:(i+1)*allele], 2)
+        numbers[i] = int(individual[i*alleles:(i+1)*alleles], 2)
 
     return numbers
 
@@ -72,12 +78,12 @@ def get_aptitude(individual):
     return aptitude
 
 
-allele = 1
-individuals = 10000
-chromosomess = 9
+alleles = 1
+individuals = 50
+chromosomes = 9
 mutation_probability = 0.015
-generations = 1
 max_weight = 80
+generations = 20
 
 survival_gear = [
     {'Name':'Food','Weight':15,'Value':5},
@@ -91,14 +97,10 @@ survival_gear = [
     {'Name':'Bow and Arrow','Weight':40,'Value':7}
 ]
 
-gear_weights = []
-gear_values = []
-for gear in survival_gear:
-    gear_weights.append(gear['Weight'])
-    gear_values.append(gear['Value'])
+gear_weights = [gear['Weight'] for gear in survival_gear]
+gear_values = [gear['Value'] for gear in survival_gear]
 
-
-population = numpy.random.randint(2**allele, size=(individuals, chromosomess))
+population = get_population(alleles, chromosomes, individuals)
 
 for gen in range(generations):
     new_population = []
@@ -106,12 +108,12 @@ for gen in range(generations):
         father = tournament(population, individuals)
         mother = tournament(population, individuals)
         
-        father_b = many_to_one(father)
-        mother_b = many_to_one(mother)
+        father_b = numbers_to_string(father)
+        mother_b = numbers_to_string(mother)
 
         child1_bin, child2_bin = get_child(father_b, mother_b, population, individuals)
-        child_1 = one_to_many(allele, chromosomess, child1_bin)
-        child_2 = one_to_many(allele, chromosomess, child2_bin)
+        child_1 = string_to_numbers(alleles, chromosomes, child1_bin)
+        child_2 = string_to_numbers(alleles, chromosomes, child2_bin)
 
         new_population.append([child_1, get_aptitude(child_1)])
         new_population.append([child_2, get_aptitude(child_2)])
@@ -119,10 +121,7 @@ for gen in range(generations):
     results = sorted(new_population, key=lambda x:(-x[1]))
 
     print('gen:', gen)
-    for i in range(10000):
-        if i%1000 is 0:
-            print(results[i])
-
+    print(results[0])
 
     for individual in range(individuals):
         population[individual]=results[individual][0]
